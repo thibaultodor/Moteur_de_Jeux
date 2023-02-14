@@ -41,6 +41,8 @@ float lastFrame = 0.0f;
 float angle = 0.;
 float zoom = 1.;
 
+bool distorsion = false;
+
 
 struct Plan {
 
@@ -57,9 +59,16 @@ struct Plan {
         float distance_dot_J = abs(pt1[1]-pt4[1])/(float)n;
         for (int j = 0; j <= n; ++j) {
             for (int i = 0; i <= n; ++i) {
-                std::cout << pt1[1]+((float)j*distance_dot_J) << " " << pt1[1] << std::endl;
+                //std::cout << pt1[1]+((float)j*distance_dot_J) << " " << pt1[1] << std::endl;
                 liste_points.emplace_back(pt1[0]+((float)i*distance_dot_I),pt1[1]-((float)j*distance_dot_J),pt1[2]);
             }
+        }
+    }
+
+    void distorsion(){
+        for (auto & point : liste_points) {
+            float d = -0.3 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(0.3-(-0.3))));
+            point[2] = d;
         }
     }
 
@@ -353,6 +362,7 @@ int main( void )
         /****************************************/
 
         //
+        if(distorsion){p.distorsion();distorsion=false;p.initBuffers();}
         p.draw();
         //
 
@@ -406,8 +416,9 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
         camera_position[1] += cameraSpeed;
     }
-    //TODO add translations
-
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS){
+        distorsion=true;
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
